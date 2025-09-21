@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Exception;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -14,51 +15,59 @@ class ProductController extends Controller
         return view('products.index', ['products' => $products]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('products.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $created = Product::create($request->all());
+
+        if ($created) {
+            return redirect()->route('products.index')->with('success', 'Produto cadastrado com sucesso');
+        }
+
+        return redirect()->back()->with('error', 'Falha ao cadastrar produto')->withInput();
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Product $product)
+    public function show(Product $products)
     {
-        //
+        
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
-    {
-        //
+    public function edit($id)
+    {   
+        $product = Product::findOrFail($id);
+
+        return view('products.edit', ['product' => $product]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
-        //
+
+       $product = Product::findorfail($id);
+       $updated = $product->update($request->all()); 
+
+        if ($updated) {
+            return redirect()->route('products.index')->with('success', 'Produto atualizado com sucesso!');
+        }
+        else {
+            return redirect()->back()->with('error', 'Falha ao atualizar produto');
+        } 
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product)
+    public function destroy($id)
     {
-        //
-    }
+        $product = Product::findOrFail($id);
+        $product->delete();
+
+        if ($product) 
+            {
+            return redirect()->route('products.index')->with('success', 'Produto deletado com sucesso!');
+            }
+        else {
+            return redirect()->back()->with('error', 'Falha ao deletar produto.');
+        }
+}
 }
